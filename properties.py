@@ -111,8 +111,31 @@ class MonopolyBoard:
         return None
 
 
-def load_board(excel_path: str = '/mnt/user-data/uploads/Monopoly_Data_Input.xlsx') -> MonopolyBoard:
+def load_board(excel_path: str = None) -> MonopolyBoard:
     """Convenience function to load the board"""
+    import os
+
+    if excel_path is None:
+        # Try multiple locations
+        possible_paths = [
+            'Monopoly_Data_Input.xlsx',  # Same directory as script
+            './Monopoly_Data_Input.xlsx',  # Explicit current directory
+            os.path.join(os.path.dirname(__file__), 'Monopoly_Data_Input.xlsx'),  # Same dir as this file
+            '/mnt/user-data/uploads/Monopoly_Data_Input.xlsx',  # Original upload location
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                excel_path = path
+                break
+
+        if excel_path is None:
+            raise FileNotFoundError(
+                "Could not find Monopoly_Data_Input.xlsx in any of these locations:\n" +
+                "\n".join(f"  - {p}" for p in possible_paths) +
+                "\n\nPlease ensure the Excel file is in the same directory as the simulator."
+            )
+
     return MonopolyBoard(excel_path)
 
 

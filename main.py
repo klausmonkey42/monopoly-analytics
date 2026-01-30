@@ -17,7 +17,8 @@ def run_property_analysis(
     your_properties: list,
     opponents: list,
     num_simulations: int = 1000,
-    max_turns: int = 100
+    max_turns: int = 100,
+    enable_house_building: bool = False
 ):
     """
     Run complete analysis for a property purchase decision
@@ -94,7 +95,8 @@ def run_property_analysis(
         target_property_position=target_property.position,
         player_configs=player_configs,
         num_simulations=num_simulations,
-        max_turns=max_turns
+        max_turns=max_turns,
+        enable_house_building=enable_house_building
     )
     
     elapsed = time.time() - start_time

@@ -52,7 +52,8 @@ class MonopolySimulator:
                              target_property_position: int,
                              player_configs: List[Dict],
                              max_turns: int = 100,
-                             purchase_target: bool = True) -> SimulationResult:
+                             purchase_target: bool = True,
+                             enable_house_building: bool = False) -> SimulationResult:
         """
         Run a single game simulation
         
@@ -68,7 +69,7 @@ class MonopolySimulator:
         """
         # Create game
         game = create_game(self.board, player_configs)
-        mechanics = GameMechanics(game)
+        mechanics = GameMechanics(game, enable_house_building=enable_house_building)
         
         # Property tracker
         tracker = PropertyTracker(
@@ -165,7 +166,8 @@ class MonopolySimulator:
                        target_property_position: int,
                        player_configs: List[Dict],
                        num_simulations: int = 1000,
-                       max_turns: int = 100) -> Dict:
+                       max_turns: int = 100,
+                       enable_house_building: bool = False) -> Dict:
         """
         Run Monte Carlo simulations
         
@@ -184,7 +186,8 @@ class MonopolySimulator:
                 target_property_position,
                 player_configs,
                 max_turns,
-                purchase_target=True
+                purchase_target=True,
+                enable_house_building=enable_house_building
             )
             results.append(result)
         

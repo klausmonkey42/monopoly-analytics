@@ -9,9 +9,18 @@ from properties import Property
 class GameMechanics:
     """Handles all game mechanics and rules"""
     
-    def __init__(self, game_state: GameState):
+    def __init__(self, game_state: GameState, enable_house_building: bool = False):
         self.game = game_state
         self.board = game_state.board
+        self.enable_house_building = enable_house_building
+        
+        # Initialize house building engine if enabled
+        if self.enable_house_building:
+            from house_building import HouseBuildingEngine, estimate_remaining_turns
+            self.house_builder = HouseBuildingEngine(self.board)
+            self.estimate_remaining_turns = estimate_remaining_turns
+        else:
+            self.house_builder = None
     
     def roll_dice(self) -> Tuple[int, int, bool]:
         """
@@ -205,6 +214,35 @@ class GameMechanics:
                     'success': success,
                     'amount': -landing_result['amount'] if success else 0
                 })
+        
+        # House building phase (if enabled)
+        if self.enable_house_building and self.house_builder:
+            remaining_turns = self.estimate_remaining_turns(self.game)
+            development_options = self.house_builder.decide_development(
+                player, 
+                self.game,
+                remaining_turns
+            )
+            
+            for option in development_options:
+                # Build the house(s)
+                for pos in option.property_positions:
+                    # Deduct cost
+                    player.pay(option.cost)
+                    
+                    # Add house/hotel
+                    current = player.houses.get(pos, 0)
+                    player.houses[pos] = option.new_houses
+                    
+                    events.append({
+                        'event': 'build_house',
+                        'player': player.name,
+                        'position': pos,
+                        'property': option.property_name,
+                        'houses': option.new_houses,
+                        'cost': -option.cost,
+                        'is_hotel': option.is_hotel
+                    })
         
         return events
 
